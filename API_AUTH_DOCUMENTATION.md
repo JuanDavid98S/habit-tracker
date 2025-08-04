@@ -1,16 +1,16 @@
-# Documentación de Autenticación API - Laravel Sanctum (V1)
+# API Authentication Documentation - Laravel Sanctum (V1)
 
-Esta documentación describe cómo usar el sistema de autenticación implementado con Laravel Sanctum para tu SPA (Single Page Application) con versionamiento de API.
+This documentation describes how to use the authentication system implemented with Laravel Sanctum for your SPA (Single Page Application) with API versioning.
 
-## Información de la API
+## API Information
 
 **Base URL:** `http://localhost:8000/api`  
-**Versión actual:** `v1`  
-**Versiones disponibles:** `v1`
+**Current Version:** `v1`  
+**Available Versions:** `v1`
 
-## Endpoints Disponibles
+## Available Endpoints
 
-### 1. Registro de Usuario
+### 1. User Registration
 
 **POST** `/api/v1/register`
 
@@ -25,12 +25,12 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
 }
 ```
 
-**Respuesta exitosa (201):**
+**Successful Response (201):**
 
 ```json
 {
     "success": true,
-    "message": "Usuario registrado exitosamente",
+    "message": "User registered successfully",
     "data": {
         "user": {
             "id": 1,
@@ -42,6 +42,7 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
         },
         "token": "1|abcdef123456..."
     },
+    "status_code": 201,
     "meta": {
         "api_version": "v1",
         "timestamp": "2024-01-01T00:00:00.000000Z"
@@ -49,7 +50,7 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
 }
 ```
 
-### 2. Inicio de Sesión
+### 2. User Login
 
 **POST** `/api/v1/login`
 
@@ -62,12 +63,12 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
 }
 ```
 
-**Respuesta exitosa (200):**
+**Successful Response (200):**
 
 ```json
 {
     "success": true,
-    "message": "Sesión iniciada exitosamente",
+    "message": "Login successful",
     "data": {
         "user": {
             "id": 1,
@@ -79,6 +80,7 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
         },
         "token": "1|abcdef123456..."
     },
+    "status_code": 200,
     "meta": {
         "api_version": "v1",
         "timestamp": "2024-01-01T00:00:00.000000Z"
@@ -86,7 +88,7 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
 }
 ```
 
-### 3. Obtener Información del Usuario
+### 3. Get User Information
 
 **GET** `/api/v1/user`
 
@@ -96,22 +98,21 @@ Esta documentación describe cómo usar el sistema de autenticación implementad
 Authorization: Bearer 1|abcdef123456...
 ```
 
-**Respuesta exitosa (200):**
+**Successful Response (200):**
 
 ```json
 {
     "success": true,
-    "message": "Información del usuario obtenida",
+    "message": "User information retrieved successfully",
     "data": {
-        "user": {
-            "id": 1,
-            "name": "Juan David",
-            "email": "juan@example.com",
-            "email_verified_at": null,
-            "created_at": "2024-01-01T00:00:00.000000Z",
-            "updated_at": "2024-01-01T00:00:00.000000Z"
-        }
+        "id": 1,
+        "name": "Juan David",
+        "email": "juan@example.com",
+        "email_verified_at": null,
+        "created_at": "2024-01-01T00:00:00.000000Z",
+        "updated_at": "2024-01-01T00:00:00.000000Z"
     },
+    "status_code": 200,
     "meta": {
         "api_version": "v1",
         "timestamp": "2024-01-01T00:00:00.000000Z"
@@ -119,7 +120,7 @@ Authorization: Bearer 1|abcdef123456...
 }
 ```
 
-### 4. Verificar Token
+### 4. Check Token
 
 **GET** `/api/v1/check`
 
@@ -129,19 +130,21 @@ Authorization: Bearer 1|abcdef123456...
 Authorization: Bearer 1|abcdef123456...
 ```
 
-**Respuesta exitosa (200):**
+**Successful Response (200):**
 
 ```json
 {
     "success": true,
-    "message": "Token válido",
+    "message": "Token is valid",
     "data": {
-        "user": {
-            "id": 1,
-            "name": "Juan David",
-            "email": "juan@example.com"
-        }
+        "id": 1,
+        "name": "Juan David",
+        "email": "juan@example.com",
+        "email_verified_at": null,
+        "created_at": "2024-01-01T00:00:00.000000Z",
+        "updated_at": "2024-01-01T00:00:00.000000Z"
     },
+    "status_code": 200,
     "meta": {
         "api_version": "v1",
         "timestamp": "2024-01-01T00:00:00.000000Z"
@@ -149,7 +152,7 @@ Authorization: Bearer 1|abcdef123456...
 }
 ```
 
-### 5. Cerrar Sesión
+### 5. Logout
 
 **POST** `/api/v1/logout`
 
@@ -159,13 +162,14 @@ Authorization: Bearer 1|abcdef123456...
 Authorization: Bearer 1|abcdef123456...
 ```
 
-**Respuesta exitosa (200):**
+**Successful Response (200):**
 
 ```json
 {
     "success": true,
-    "message": "Sesión cerrada exitosamente",
+    "message": "Logout successful",
     "data": null,
+    "status_code": 200,
     "meta": {
         "api_version": "v1",
         "timestamp": "2024-01-01T00:00:00.000000Z"
@@ -173,9 +177,9 @@ Authorization: Bearer 1|abcdef123456...
 }
 ```
 
-## Implementación en Frontend (JavaScript/TypeScript)
+## Frontend Implementation (JavaScript/TypeScript)
 
-### Configuración del Cliente HTTP
+### HTTP Client Configuration
 
 ```javascript
 // api.js
@@ -215,13 +219,13 @@ class ApiClient {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || "Error en la petición");
+            throw new Error(data.message || "Request error");
         }
 
         return data;
     }
 
-    // Métodos de autenticación
+    // Authentication methods
     async register(userData) {
         const response = await this.request("/register", {
             method: "POST",
@@ -268,20 +272,21 @@ class ApiClient {
 export const apiClient = new ApiClient();
 ```
 
-### Ejemplo de Uso en React/Vue/Angular
+### Usage Example in React/Vue/Angular
 
 ```javascript
-// Ejemplo con React
+// Example with React
 import { apiClient } from "./api";
 
-// Registro
+// Registration
 const handleRegister = async (userData) => {
     try {
         const response = await apiClient.register(userData);
-        console.log("Usuario registrado:", response.data.user);
-        // Redirigir al dashboard
+        console.log("User registered:", response.data.user);
+        console.log("Status code:", response.status_code);
+        // Redirect to dashboard
     } catch (error) {
-        console.error("Error en registro:", error.message);
+        console.error("Registration error:", error.message);
     }
 };
 
@@ -289,10 +294,11 @@ const handleRegister = async (userData) => {
 const handleLogin = async (credentials) => {
     try {
         const response = await apiClient.login(credentials);
-        console.log("Usuario logueado:", response.data.user);
-        // Redirigir al dashboard
+        console.log("User logged in:", response.data.user);
+        console.log("Status code:", response.status_code);
+        // Redirect to dashboard
     } catch (error) {
-        console.error("Error en login:", error.message);
+        console.error("Login error:", error.message);
     }
 };
 
@@ -300,56 +306,58 @@ const handleLogin = async (credentials) => {
 const handleLogout = async () => {
     try {
         await apiClient.logout();
-        console.log("Sesión cerrada");
-        // Redirigir al login
+        console.log("Session closed");
+        // Redirect to login
     } catch (error) {
-        console.error("Error en logout:", error.message);
+        console.error("Logout error:", error.message);
     }
 };
 
-// Verificar autenticación al cargar la app
+// Check authentication on app load
 const checkAuth = async () => {
     try {
         const response = await apiClient.checkAuth();
-        console.log("Usuario autenticado:", response.data.user);
-        // Usuario está logueado
+        console.log("User authenticated:", response.data);
+        console.log("Status code:", response.status_code);
+        // User is logged in
     } catch (error) {
-        console.log("Usuario no autenticado");
-        // Redirigir al login
+        console.log("User not authenticated");
+        // Redirect to login
     }
 };
 ```
 
-## Configuración de CORS
+## CORS Configuration
 
-La API está configurada para aceptar peticiones desde cualquier origen. Si necesitas restringir los orígenes, modifica el archivo `config/cors.php`:
+The API is configured to accept requests from any origin. If you need to restrict origins, modify the file `config/cors.php`:
 
 ```php
 'allowed_origins' => [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://tu-dominio.com'
+    'https://your-domain.com'
 ],
 ```
 
-## Manejo de Errores
+## Error Handling
 
-La API devuelve errores en formato JSON con códigos de estado HTTP apropiados:
+The API returns errors in JSON format with appropriate HTTP status codes:
 
--   **400 Bad Request**: Datos de entrada inválidos
--   **401 Unauthorized**: Credenciales incorrectas o token inválido
--   **422 Unprocessable Entity**: Errores de validación
--   **500 Internal Server Error**: Errores del servidor
+-   **400 Bad Request**: Invalid input data
+-   **401 Unauthorized**: Incorrect credentials or invalid token
+-   **422 Unprocessable Entity**: Validation errors
+-   **500 Internal Server Error**: Server errors
 
-Ejemplo de respuesta de error:
+Example error response:
 
 ```json
 {
     "success": false,
-    "message": "Las credenciales proporcionadas son incorrectas.",
+    "message": "Invalid credentials provided.",
     "errors": {
-        "email": ["Las credenciales proporcionadas son incorrectas."]
+        "email": ["Invalid credentials provided."]
     },
+    "status_code": 401,
     "meta": {
         "api_version": "v1",
         "timestamp": "2024-01-01T00:00:00.000000Z"
@@ -357,33 +365,33 @@ Ejemplo de respuesta de error:
 }
 ```
 
-## Seguridad
+## Security
 
--   Los tokens se almacenan de forma segura en la base de datos
--   Las contraseñas se hashean usando bcrypt
--   Los tokens se invalidan al cerrar sesión
--   CORS está configurado para permitir credenciales
--   Todas las rutas protegidas requieren autenticación
+-   Tokens are stored securely in the database
+-   Passwords are hashed using bcrypt
+-   Tokens are invalidated on logout
+-   CORS is configured to allow credentials
+-   All protected routes require authentication
 
-## Versionamiento
+## Versioning
 
-### Estructura de Versiones
+### Version Structure
 
--   **V1**: Versión actual (estable)
--   **Legacy**: Endpoints sin versionar (redirigen a V1)
+-   **V1**: Current version (stable)
+-   **Legacy**: Unversioned endpoints (redirect to V1)
 
-### Migración de Versiones
+### Version Migration
 
-Para migrar a una nueva versión de la API:
+To migrate to a new API version:
 
-1. Crear nuevos controladores en `app/Http/Controllers/Api/V2/`
-2. Agregar nuevas rutas en `routes/api.php` con prefijo `v2`
-3. Mantener compatibilidad con versiones anteriores
-4. Documentar cambios breaking
+1. Create new controllers in `app/Http/Controllers/Api/V2/`
+2. Add new routes in `routes/api.php` with `v2` prefix
+3. Maintain compatibility with previous versions
+4. Document breaking changes
 
-### Endpoints Legacy
+### Legacy Endpoints
 
-Los siguientes endpoints siguen funcionando pero redirigen a V1:
+The following endpoints still work but redirect to V1:
 
 -   `POST /api/legacy/register`
 -   `POST /api/legacy/login`
@@ -391,10 +399,48 @@ Los siguientes endpoints siguen funcionando pero redirigen a V1:
 -   `GET /api/legacy/user`
 -   `GET /api/legacy/check`
 
-## Próximos Pasos
+## Project Structure
 
-1. Ejecuta las migraciones: `php artisan migrate`
-2. Configura tu archivo `.env` con la URL de tu API
-3. Implementa el cliente HTTP en tu SPA
-4. Agrega más rutas protegidas según tus necesidades
-5. Considera implementar refresh tokens para mayor seguridad
+```
+app/Http/
+├── Controllers/
+│   └── Api/
+│       ├── ApiController.php          # Base API controller
+│       └── V1/
+│           └── AuthController.php     # V1 authentication controller
+├── Requests/
+│   └── Api/
+│       └── V1/
+│           ├── LoginRequest.php       # Login validation
+│           └── RegisterRequest.php    # Registration validation
+└── Resources/
+    └── Api/
+        └── V1/
+            ├── AuthResource.php       # Authentication response resource
+            └── UserResource.php       # User response resource
+```
+
+## Response Structure
+
+All API responses follow a consistent structure:
+
+```json
+{
+    "success": true/false,
+    "message": "Descriptive message",
+    "data": { ... },
+    "status_code": 200,
+    "meta": {
+        "api_version": "v1",
+        "timestamp": "2024-01-01T00:00:00.000000Z"
+    }
+}
+```
+
+## Next Steps
+
+1. Run migrations: `php artisan migrate`
+2. Configure your `.env` file with your API URL
+3. Implement the HTTP client in your SPA
+4. Add more protected routes as needed
+5. Consider implementing refresh tokens for enhanced security

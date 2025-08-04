@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -84,6 +84,38 @@
                 margin-bottom: 20px;
                 border-left: 4px solid #2196f3;
             }
+            .status-code {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: bold;
+                margin-left: 10px;
+            }
+            .status-200 {
+                background: #28a745;
+                color: white;
+            }
+            .status-201 {
+                background: #17a2b8;
+                color: white;
+            }
+            .status-400 {
+                background: #ffc107;
+                color: black;
+            }
+            .status-401 {
+                background: #dc3545;
+                color: white;
+            }
+            .status-422 {
+                background: #fd7e14;
+                color: white;
+            }
+            .status-500 {
+                background: #6c757d;
+                color: white;
+            }
         </style>
     </head>
     <body>
@@ -94,27 +126,27 @@
                 <strong>Base URL:</strong>
                 http://habit-tracker.test/api/v1<br />
                 <strong>Status:</strong>
-                <span style="color: green">✓ Funcionando</span>
+                <span style="color: green">✓ Working</span>
             </div>
             <p>
-                Esta página te permite probar todos los endpoints de
-                autenticación de la API versionada.
+                This page allows you to test all authentication endpoints of the
+                versioned API.
             </p>
 
             <!-- Token Display -->
             <div class="section">
-                <h3>Token Actual</h3>
+                <h3>Current Token</h3>
                 <div id="tokenDisplay" class="token-display">
-                    No hay token almacenado
+                    No token stored
                 </div>
             </div>
 
-            <!-- Registro -->
+            <!-- Registration -->
             <div class="section">
-                <h3>Registro de Usuario</h3>
+                <h3>User Registration</h3>
                 <form id="registerForm">
                     <div class="form-group">
-                        <label for="registerName">Nombre:</label>
+                        <label for="registerName">Name:</label>
                         <input type="text" id="registerName" required />
                     </div>
                     <div class="form-group">
@@ -122,12 +154,12 @@
                         <input type="email" id="registerEmail" required />
                     </div>
                     <div class="form-group">
-                        <label for="registerPassword">Contraseña:</label>
+                        <label for="registerPassword">Password:</label>
                         <input type="password" id="registerPassword" required />
                     </div>
                     <div class="form-group">
                         <label for="registerPasswordConfirm"
-                            >Confirmar Contraseña:</label
+                            >Confirm Password:</label
                         >
                         <input
                             type="password"
@@ -135,7 +167,7 @@
                             required
                         />
                     </div>
-                    <button type="submit">Registrar</button>
+                    <button type="submit">Register</button>
                 </form>
                 <div
                     id="registerResponse"
@@ -146,17 +178,17 @@
 
             <!-- Login -->
             <div class="section">
-                <h3>Iniciar Sesión</h3>
+                <h3>Login</h3>
                 <form id="loginForm">
                     <div class="form-group">
                         <label for="loginEmail">Email:</label>
                         <input type="email" id="loginEmail" required />
                     </div>
                     <div class="form-group">
-                        <label for="loginPassword">Contraseña:</label>
+                        <label for="loginPassword">Password:</label>
                         <input type="password" id="loginPassword" required />
                     </div>
-                    <button type="submit">Iniciar Sesión</button>
+                    <button type="submit">Login</button>
                 </form>
                 <div
                     id="loginResponse"
@@ -165,10 +197,10 @@
                 ></div>
             </div>
 
-            <!-- Obtener Usuario -->
+            <!-- Get User -->
             <div class="section">
-                <h3>Obtener Información del Usuario</h3>
-                <button onclick="getUser()">Obtener Usuario</button>
+                <h3>Get User Information</h3>
+                <button onclick="getUser()">Get User</button>
                 <div
                     id="userResponse"
                     class="response"
@@ -176,10 +208,10 @@
                 ></div>
             </div>
 
-            <!-- Verificar Token -->
+            <!-- Check Token -->
             <div class="section">
-                <h3>Verificar Token</h3>
-                <button onclick="checkToken()">Verificar Token</button>
+                <h3>Check Token</h3>
+                <button onclick="checkToken()">Check Token</button>
                 <div
                     id="checkResponse"
                     class="response"
@@ -189,8 +221,8 @@
 
             <!-- Logout -->
             <div class="section">
-                <h3>Cerrar Sesión</h3>
-                <button onclick="logout()">Cerrar Sesión</button>
+                <h3>Logout</h3>
+                <button onclick="logout()">Logout</button>
                 <div
                     id="logoutResponse"
                     class="response"
@@ -200,8 +232,8 @@
 
             <!-- Test API Info -->
             <div class="section">
-                <h3>Información de la API</h3>
-                <button onclick="getApiInfo()">Obtener Info de API</button>
+                <h3>API Information</h3>
+                <button onclick="getApiInfo()">Get API Info</button>
                 <div
                     id="apiInfoResponse"
                     class="response"
@@ -219,13 +251,28 @@
                 if (currentToken) {
                     display.textContent = currentToken.substring(0, 50) + "...";
                 } else {
-                    display.textContent = "No hay token almacenado";
+                    display.textContent = "No token stored";
                 }
+            }
+
+            function getStatusClass(statusCode) {
+                const status = statusCode.toString();
+                if (status.startsWith("2")) return "status-200";
+                if (status.startsWith("4")) return "status-400";
+                if (status.startsWith("5")) return "status-500";
+                return "status-400";
             }
 
             function showResponse(elementId, data, isError = false) {
                 const element = document.getElementById(elementId);
-                element.textContent = JSON.stringify(data, null, 2);
+                const statusCode = data.status_code || 200;
+                const statusClass = getStatusClass(statusCode);
+
+                let responseText = JSON.stringify(data, null, 2);
+
+                // Add status code badge to the response
+                const statusBadge = `<span class="status-code ${statusClass}">HTTP ${statusCode}</span>`;
+                element.innerHTML = statusBadge + "<br><br>" + responseText;
                 element.className = `response ${isError ? "error" : "success"}`;
                 element.style.display = "block";
             }
@@ -248,13 +295,13 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || "Error en la petición");
+                    throw new Error(data.message || "Request error");
                 }
 
                 return data;
             }
 
-            // Registro
+            // Registration
             document
                 .getElementById("registerForm")
                 .addEventListener("submit", async (e) => {
@@ -287,7 +334,7 @@
                     } catch (error) {
                         showResponse(
                             "registerResponse",
-                            { error: error.message },
+                            { error: error.message, status_code: 400 },
                             true
                         );
                     }
@@ -320,13 +367,13 @@
                     } catch (error) {
                         showResponse(
                             "loginResponse",
-                            { error: error.message },
+                            { error: error.message, status_code: 401 },
                             true
                         );
                     }
                 });
 
-            // Obtener usuario
+            // Get user
             async function getUser() {
                 try {
                     const response = await makeRequest("/user");
@@ -334,13 +381,13 @@
                 } catch (error) {
                     showResponse(
                         "userResponse",
-                        { error: error.message },
+                        { error: error.message, status_code: 401 },
                         true
                     );
                 }
             }
 
-            // Verificar token
+            // Check token
             async function checkToken() {
                 try {
                     const response = await makeRequest("/check");
@@ -348,7 +395,7 @@
                 } catch (error) {
                     showResponse(
                         "checkResponse",
-                        { error: error.message },
+                        { error: error.message, status_code: 401 },
                         true
                     );
                 }
@@ -362,18 +409,19 @@
                     localStorage.removeItem("auth_token");
                     updateTokenDisplay();
                     showResponse("logoutResponse", {
-                        message: "Sesión cerrada exitosamente",
+                        message: "Logout successful",
+                        status_code: 200,
                     });
                 } catch (error) {
                     showResponse(
                         "logoutResponse",
-                        { error: error.message },
+                        { error: error.message, status_code: 500 },
                         true
                     );
                 }
             }
 
-            // Obtener información de la API
+            // Get API information
             async function getApiInfo() {
                 try {
                     const response = await fetch(
@@ -384,13 +432,13 @@
                 } catch (error) {
                     showResponse(
                         "apiInfoResponse",
-                        { error: error.message },
+                        { error: error.message, status_code: 500 },
                         true
                     );
                 }
             }
 
-            // Inicializar
+            // Initialize
             updateTokenDisplay();
         </script>
     </body>

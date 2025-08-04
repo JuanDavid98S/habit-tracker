@@ -17,31 +17,32 @@ use App\Http\Controllers\Api\V1\AuthController;
 
 // API V1 Routes
 Route::prefix('v1')->group(function () {
-    // Rutas públicas de autenticación
+    // Public authentication routes
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Rutas protegidas que requieren autenticación
+    // Protected routes that require authentication
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
         Route::get('/check', [AuthController::class, 'check']);
 
-        // Aquí puedes agregar más rutas protegidas de tu API
+        // Here you can add more protected API routes
         Route::get('/test', function () {
             return response()->json([
                 'success' => true,
-                'message' => 'API V1 funcionando correctamente',
+                'message' => 'API V1 is working correctly',
                 'data' => [
                     'version' => '1.0',
                     'timestamp' => now()->toISOString()
-                ]
-            ]);
+                ],
+                'status_code' => 200
+            ], 200);
         });
     });
 });
 
-// Rutas legacy (sin versionar) - Redirigir a V1
+// Legacy routes (unversioned) - Redirect to V1
 Route::prefix('legacy')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -53,11 +54,11 @@ Route::prefix('legacy')->group(function () {
     });
 });
 
-// Ruta de información de la API
+// API information route
 Route::get('/', function () {
     return response()->json([
         'success' => true,
-        'message' => 'API de Habit Tracker',
+        'message' => 'Habit Tracker API',
         'data' => [
             'name' => 'Habit Tracker API',
             'version' => '1.0',
@@ -74,6 +75,7 @@ Route::get('/', function () {
                     ]
                 ]
             ]
-        ]
-    ]);
+        ],
+        'status_code' => 200
+    ], 200);
 });
