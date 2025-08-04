@@ -3,27 +3,23 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Requests\Api\V1\LoginRequest;
+use App\Http\Requests\Api\V1\RegisterRequest;
+use App\Http\Resources\Api\V1\AuthResource;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends ApiController
 {
     /**
-     * Registrar un nuevo usuario
+     * Register a new user
      */
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -32,84 +28,88 @@ class AuthController extends ApiController
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            return $this->successResponse([
+            $authData = [
                 'user' => $user,
                 'token' => $token,
-            ], 'Usuario registrado exitosamente', 201);
-        } catch (ValidationException $e) {
-            return $this->validationErrorResponse($e->errors());
+            ];
+
+            return $this->resourceResponse(
+                new AuthResource($authData),
+                'User registered successfully',
+                201
+            );
         } catch (\Exception $e) {
-            return $this->serverErrorResponse('Error al registrar usuario');
+            return $this->serverErrorResponse('Error registering user');
         }
     }
 
     /**
-     * Iniciar sesión
+     * Login user
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
         try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
-
             if (!Auth::attempt($request->only('email', 'password'))) {
-                return $this->unauthorizedResponse('Las credenciales proporcionadas son incorrectas.');
+                return $this->unauthorizedResponse('Invalid credentials provided.');
             }
 
             $user = User::where('email', $request->email)->firstOrFail();
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            return $this->successResponse([
+            $authData = [
                 'user' => $user,
                 'token' => $token,
-            ], 'Sesión iniciada exitosamente');
-        } catch (ValidationException $e) {
-            return $this->validationErrorResponse($e->errors());
+            ];
+
+            return $this->resourceResponse(
+                new AuthResource($authData),
+                'Login successful'
+            );
         } catch (\Exception $e) {
-            return $this->serverErrorResponse('Error al iniciar sesión');
+            return $this->serverErrorResponse('Error during login');
         }
     }
 
     /**
-     * Cerrar sesión
+     * Logout user
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
         try {
-            $request->user()->currentAccessToken()->delete();
-            return $this->successResponse(null, 'Sesión cerrada exitosamente');
+            request()->user()->currentAccessToken()->delete();
+            return $this->successResponse(null, 'Logout successful');
         } catch (\Exception $e) {
-            return $this->serverErrorResponse('Error al cerrar sesión');
+            return $this->serverErrorResponse('Error during logout');
         }
     }
 
     /**
-     * Obtener información del usuario autenticado
+     * Get authenticated user information
      */
-    public function user(Request $request): JsonResponse
+    public function user(): JsonResponse
     {
         try {
-            return $this->successResponse([
-                'user' => $request->user(),
-            ], 'Información del usuario obtenida');
+            return $this->resourceResponse(
+                new UserResource(request()->user()),
+                'User information retrieved successfully'
+            );
         } catch (\Exception $e) {
-            return $this->serverErrorResponse('Error al obtener información del usuario');
+            return $this->serverErrorResponse('Error retrieving user information');
         }
     }
 
     /**
-     * Verificar si el token es válido
+     * Check if token is valid
      */
-    public function check(Request $request): JsonResponse
+    public function check(): JsonResponse
     {
         try {
-            return $this->successResponse([
-                'user' => $request->user(),
-            ], 'Token válido');
+            return $this->resourceResponse(
+                new UserResource(request()->user()),
+                'Token is valid'
+            );
         } catch (\Exception $e) {
-            return $this->unauthorizedResponse('Token inválido');
+            return $this->unauthorizedResponse('Invalid token');
         }
     }
 }

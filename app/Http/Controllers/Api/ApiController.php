@@ -4,29 +4,33 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Validation\ValidationException;
 
 abstract class ApiController extends Controller
 {
     /**
-     * Respuesta exitosa
+     * Success response with status code
      */
-    protected function successResponse($data = null, string $message = 'Operación exitosa', int $code = 200): JsonResponse
+    protected function successResponse($data = null, string $message = 'Operation successful', int $code = 200): JsonResponse
     {
         return response()->json([
             'success' => true,
             'message' => $message,
             'data' => $data,
+            'status_code' => $code,
         ], $code);
     }
 
     /**
-     * Respuesta de error
+     * Error response with status code
      */
-    protected function errorResponse(string $message = 'Error en la operación', int $code = 400, $errors = null): JsonResponse
+    protected function errorResponse(string $message = 'Operation failed', int $code = 400, $errors = null): JsonResponse
     {
         $response = [
             'success' => false,
             'message' => $message,
+            'status_code' => $code,
         ];
 
         if ($errors) {
@@ -37,34 +41,68 @@ abstract class ApiController extends Controller
     }
 
     /**
-     * Respuesta de validación
+     * Validation error response
      */
-    protected function validationErrorResponse($errors, string $message = 'Error de validación'): JsonResponse
+    protected function validationErrorResponse($errors, string $message = 'Validation failed'): JsonResponse
     {
         return $this->errorResponse($message, 422, $errors);
     }
 
     /**
-     * Respuesta de recurso no encontrado
+     * Resource not found response
      */
-    protected function notFoundResponse(string $message = 'Recurso no encontrado'): JsonResponse
+    protected function notFoundResponse(string $message = 'Resource not found'): JsonResponse
     {
         return $this->errorResponse($message, 404);
     }
 
     /**
-     * Respuesta de no autorizado
+     * Unauthorized response
      */
-    protected function unauthorizedResponse(string $message = 'No autorizado'): JsonResponse
+    protected function unauthorizedResponse(string $message = 'Unauthorized'): JsonResponse
     {
         return $this->errorResponse($message, 401);
     }
 
     /**
-     * Respuesta de servidor interno
+     * Server error response
      */
-    protected function serverErrorResponse(string $message = 'Error interno del servidor'): JsonResponse
+    protected function serverErrorResponse(string $message = 'Internal server error'): JsonResponse
     {
         return $this->errorResponse($message, 500);
+    }
+
+    /**
+     * Handle validation exception
+     */
+    protected function handleValidationException(ValidationException $exception): JsonResponse
+    {
+        return $this->validationErrorResponse($exception->errors());
+    }
+
+    /**
+     * Resource response with status code
+     */
+    protected function resourceResponse(JsonResource $resource, string $message = 'Resource retrieved successfully', int $code = 200): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $resource,
+            'status_code' => $code,
+        ], $code);
+    }
+
+    /**
+     * Collection response with status code
+     */
+    protected function collectionResponse($collection, string $message = 'Resources retrieved successfully', int $code = 200): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $collection,
+            'status_code' => $code,
+        ], $code);
     }
 }
