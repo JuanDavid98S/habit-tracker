@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\HabitController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,8 @@ Route::prefix('v1')->group(function () {
                 'status_code' => 200
             ], 200);
         });
+
+        Route::apiResource('habits', HabitController::class);
     });
 });
 
@@ -72,6 +75,13 @@ Route::get('/', function () {
                         'POST /api/v1/logout',
                         'GET /api/v1/user',
                         'GET /api/v1/check'
+                    ],
+                    'habits' => [
+                        'GET /api/v1/habits',
+                        'POST /api/v1/habits',
+                        'GET /api/v1/habits/{id}',
+                        'PUT /api/v1/habits/{id}',
+                        'DELETE /api/v1/habits/{id}'
                     ]
                 ]
             ]

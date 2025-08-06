@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Habit;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,10 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        Habit::factory(10)->create([
+            'user_id' => 1, // Assuming the first user is the one we created above
         ]);
     }
 }
